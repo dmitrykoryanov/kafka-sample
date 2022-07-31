@@ -1,0 +1,28 @@
+package com.infy.kafkasample.controller;
+
+import com.infy.kafkasample.dto.MessageRequest;
+import com.infy.kafkasample.model.Message;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
+
+@RestController
+@RequestMapping("api/v1/messages")
+public class MessageController {
+
+    private KafkaTemplate<String, Message> kafkaTemplate;
+
+    public MessageController(KafkaTemplate<String, Message> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    @PostMapping
+    public void publish(@RequestBody MessageRequest messageRequest){
+        Message message = new Message(messageRequest.message(), LocalDateTime.now());
+        kafkaTemplate.send("kafka_topic", message);
+    }
+}
